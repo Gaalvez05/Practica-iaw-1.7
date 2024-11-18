@@ -43,9 +43,27 @@ wp config create \
 
 wp core install \
   --url=$LE_DOMAIN \
-  --title="IAW" \
-  --admin_user=admin \
-  --admin_password=admin_password \
-  --admin_email=test@test.com \
-  --path=/var/www/html \
-  --allow-root  
+  --title=$WORDPRESS_TITLE \
+  --admin_user=$WORDPRESS_ADMIN_USER \
+  --admin_password=$WORDPRESS_ADMIN_PASS \
+  --admin_email=$WORDPRESS_ADMIN_EMAIL \
+  --path=$WORDPRESS_DIRECTORY \
+  --allow-root 
+
+# Instalamos y activamos el theme mindscape
+wp theme install mindscape --activate --path=$WORDPRESS_DIRECTORY --allow-root
+
+# Instalamos un plugin
+wp plugin install wps-hide-login --activate --path=$WORDPRESS_DIRECTORY --allow-root
+
+# Configuramos el plugin de url
+wp option update whl-page "$WORDPRESS_HIDE_LOGIN_URL" --path=$WORDPRESS_DIRECTORY --allow-root
+
+# Configuramos los enlaces permanentes
+wp rewrite structure '/%postname%/' --path=$WORDPRESS_DIRECTORY --allow-root
+
+#Copiamos el archivo .htaccess
+cp ../htaccess/.htaccess $WORDPRESS_DIRECTORY
+
+# Modificamos el propietario y el grupo del directorio /var/www/html
+chown -R www-data:www-data $WORDPRESS_DIRECTORY
