@@ -6,7 +6,7 @@ set -ex
 # Importamos las variables de entorno
 source .env
 
-#Eliminamos descargas prevas de WP-CLI
+#Eliminamos descargas previas de WP-CLI
 rm -rf /tmp/wp-cli.phar
 
 #Descargamos WP-CLI

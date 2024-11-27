@@ -122,7 +122,7 @@ Cambia el propietario y el grupo del archivo index.php y de todos los archivos e
 
 ![](/img/image.png)
 
-# 2 Creacion del certificado mediante Let's Encrypt en el archivo `setup_letsencrypt_certificate.s`.
+# 2 Creacion del certificado mediante Let's Encrypt en el archivo `setup_letsencrypt_certificate.s`
 
 ## 2.1 Realizamos la instalación y actualización de snapd.
 ```
@@ -164,3 +164,117 @@ sudo ln -fs /snap/bin/certbot /usr/bin/certbot
 Y este sería el resultado:
 ![](/img/Captura%20de%20pantalla%202024-11-27%20201249.png)
 
+# 3 Despliegue de WordPress a través de WP-CLI con el archivo `deploy_wordpress_with_wpcli.sh`
+
+## 3.1 Eliminar instalaciones previas de WP-CLI
+```
+rm -rf /tmp/wp-cli.phar
+```
+
+Esto nos permitira que no haya dos archivos con el mismo contenido para evitar así errores en la instalación.
+
+## 3.2 Descarga del codigo fuente de WP-CLI
+```
+wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P /tmp
+```
+
+Descargamos el codigo fuente de WP-CLI y lo guardamos en la carpeta `/tmp`.
+
+## 3.3 Damos permisos de ejecucion al archivo `wp-cli.phar`
+```
+chmod +x /tmp/wp-cli.phar
+```
+
+Para poder ejecutarlo y que se pueda instalar WP-CLI en nuestra máquina deberemos darle permisos de ejecución.
+
+## 3.4 Movemos el script WP-CLI al  directorio `/usr/local/bin`
+```
+mv /tmp/wp-cli.phar /usr/local/bin/wp
+```
+
+Para poder tener WP-CLI en el directorio que queremos deberemos moverlo al directorio indicado.
+
+## 3.5 Eliminamos descargas precias del codig fuente de WordPress
+```
+rm -rf ${WORDPRESS_DIRECTORY}/*
+```
+
+Al igual que con WP-CLI deberemos eliminar descargas previas de WordPress para evitar fallos o errores durante su instalación.
+
+## 3.6 Descargamos el codigo fuente de WordPress
+```
+wp core download --locale=es_ES --path=/var/www/html --allow-root
+```
+
+Descargamos el codigo fuente de WordPress, especificamos que el idioma sea en Español y que esté en el directorio `/var/www/html`.
+
+## 3.7 Creamos la base de datos y el usuario para WordPress
+```
+mysql -u root <<< "DROP DATABASE IF EXISTS $WORDPRESS_DB_NAME"
+mysql -u root <<< "CREATE DATABASE $WORDPRESS_DB_NAME"
+mysql -u root <<< "DROP USER IF EXISTS $WORDPRESS_DB_USER@$IP_CLIENTE_MYSQL"
+mysql -u root <<< "CREATE USER $WORDPRESS_DB_USER@$IP_CLIENTE_MYSQL IDENTIFIED BY '$WORDPRESS_DB_PASSWORD'"
+mysql -u root <<< "GRANT ALL PRIVILEGES ON $WORDPRESS_DB_NAME.* TO $WORDPRESS_DB_USER@$IP_CLIENTE_MYSQL"
+```
+
+Las variables `$WORDPRESS_DB_NAME`, `$WORDPRESS_DB_USER`, `$WORDPRESS_DB_PASSWORD` y `$IP_CLIENTE_MYSQL` estarán definidas en el archivo `.env`.
+
+## 3.8 Creamos el archivo de configuracion de WordPress
+```
+wp config create \
+  --dbname=$WORDPRESS_DB_NAME \
+  --dbuser=$WORDPRESS_DB_USER \
+  --dbpass=$WORDPRESS_DB_PASSWORD \
+  --dbhost=$WORDPRESS_DB_HOST \
+  --path=$WORDPRESS_DIRECTORY \
+  --allow-root
+```
+
+Mediante este comando configuramos las variables que va a tomar WordPress en cuando a nombre de la base da datos, usuario y contraseña, cual va a ser el host o su directorio, además, con `--allow-root` permitimos que pueda ser ejcutado con `root`.
+
+Todas estas variables como se ha mencionado antes de configuran en el archivo `.env`.
+
+## 3.9 Instalacion de WordPress con los datos proporcionados.
+```
+wp core install \
+  --url=$LE_DOMAIN \
+  --title=$WORDPRESS_TITLE \
+  --admin_user=$WORDPRESS_ADMIN_USER \
+  --admin_password=$WORDPRESS_ADMIN_PASS \
+  --admin_email=$WORDPRESS_ADMIN_EMAIL \
+  --path=$WORDPRESS_DIRECTORY \
+  --allow-root 
+```
+
+Aqui vamos a especificar como queremos que se llame la pagina, el nombre del dominio, el usuario y contraseña del admin y el directorio donde va a estar, que es `/var/www/html`.
+
+## 3.10 Instalacion y activacion de un tema y plugin WordPress
+```
+wp theme install mindscape --activate --path=$WORDPRESS_DIRECTORY --allow-root
+
+wp plugin install wps-hide-login --activate --path=$WORDPRESS_DIRECTORY --allow-root
+```
+
+Descargamos un tema de WordPress y lo activamos para que al acceder a la pagina nos salga con este tema, asi como el plugin `wps-hide-login`.
+
+![](/img/Captura%20de%20pantalla%202024-11-27%20202657.png)
+
+## 3.11 Confuramos el plugin, los enlaces y `.htaccess`
+```
+"$WORDPRESS_HIDE_LOGIN_URL" --path=$WORDPRESS_DIRECTORY --allow-root
+
+wp rewrite structure '/%postname%/' --path=$WORDPRESS_DIRECTORY --allow-root
+
+cp ../htaccess/.htaccess $WORDPRESS_DIRECTORY
+```
+El primer comando configura el plugin anteriormente instalado con una URL personalizada para el inicio de sesión. El segundo configura que los enlaces sean permanentes y el tercero opia un archivo `.htaccess` predefinido para reglas adicionales del servidor.
+
+## 3.12 Cambiamos el propietario y el grupo al directorio de WordPress
+```
+chown -R www-data:www-data $WORDPRESS_DIRECTORY
+```
+
+Por ultimo este sería el resultado de la instalación junto con su certificado.
+![](/img/Captura%20de%20pantalla%202024-11-27%20202657.png)
+
+![](/img/Captura%20de%20pantalla%202024-11-27%20202705.png)
