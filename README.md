@@ -154,7 +154,7 @@ certbot --apache -m $LE_EMAIL --agree-tos --no-eff-email -d $LE_DOMAIN --non-int
 
 La dirección de correo y el dominio estarán en el archivo `.env` donde las declararemos con sus respectivos datos, de esta manera:
 
-![](/img/Captura%20de%20pantalla%202024-11-27%20201249.png)
+![](/img/Captura%20de%20pantalla%202024-11-27%20201113.png)
 
 ## 2.4 Creamos una alias para el comando certbot.
 ```
