@@ -278,3 +278,7 @@ Por ultimo este sería el resultado de la instalación junto con su certificado.
 ![](/img/Captura%20de%20pantalla%202024-11-27%20202657.png)
 
 ![](/img/Captura%20de%20pantalla%202024-11-27%20202705.png)
+
+Si ponemos /nadaimportante despues de nuestro nombre de dominio, nos redirigirá a la pagina de inicio de sesión del admin de WordPress
+
+![](/img/Screenshot_20241128_100107.png)

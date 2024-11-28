@@ -57,7 +57,7 @@ wp theme install mindscape --activate --path=$WORDPRESS_DIRECTORY --allow-root
 wp plugin install wps-hide-login --activate --path=$WORDPRESS_DIRECTORY --allow-root
 
 # Configuramos el plugin de url
-wp option update whl-page "$WORDPRESS_HIDE_LOGIN_URL" --path=$WORDPRESS_DIRECTORY --allow-root
+wp option update whl_page "$WORDPRESS_HIDE_LOGIN_URL" --path=$WORDPRESS_DIRECTORY --allow-root
 
 # Configuramos los enlaces permanentes
 wp rewrite structure '/%postname%/' --path=$WORDPRESS_DIRECTORY --allow-root
