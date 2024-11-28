@@ -282,3 +282,5 @@ Por ultimo este sería el resultado de la instalación junto con su certificado.
 Si ponemos /nadaimportante despues de nuestro nombre de dominio, nos redirigirá a la pagina de inicio de sesión del admin de WordPress
 
 ![](/img/Screenshot_20241128_100107.png)
+
+Y ya habriamos concluido la instalacion y configuracion de WordPress con WP-CLI.
